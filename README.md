@@ -1,6 +1,6 @@
 # BillionWordImputation
 
-Team members: 
-Jared Sagendorf
-Roelof Groenewald
-Beibei Xin
+Team members: <br />
+Jared Sagendorf<br />
+Roelof Groenewald<br />
+Beibei Xin<br />
