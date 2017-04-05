@@ -1,18 +1,20 @@
 import gensim
 import os
+import sys
 import string
 
-class Sequence(object):
-    def __init__(self, maxlen=1000):
-        self.buff = [None]*maxlen
-        self.length = 0
+# Reusable buffer class for performance increase... unfinished
+#class Sequence(object):
+    #def __init__(self, maxlen=1000):
+        #self.buff = [None]*maxlen
+        #self.length = 0
         
-    def __len__(self):
-        return self.length
+    #def __len__(self):
+        #return self.length
         
-    def __iter__(self):
-        for i in xrange(self.length):
-            yield self.buff[i]
+    #def __iter__(self):
+        #for i in xrange(self.length):
+            #yield self.buff[i]
 
 
 class Sentences(object):
@@ -33,7 +35,8 @@ class Sentences(object):
                 yield line.translate(None, self.remove).split(self.delimiter)
 
 def main():
-    sentences = Sentences('train_v2.txt', remove=string.punctuation)
+    trainingData = sys.argv[1]
+    sentences = Sentences(trainingData, remove=string.punctuation)
     model = gensim.models.Word2Vec(sentences, min_count=10, workers=4, size=100, alpha=0.05, cbow_mean=1, negative=20)
     model.save('w2v.mdl')
     
