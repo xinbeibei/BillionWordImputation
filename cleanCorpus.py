@@ -21,6 +21,7 @@ parser.add_argument("-smax", help="specify maximum length of sentence", type=int
 parser.add_argument("-split", help="specify percentage of corpus to seperate into test set", type=float,default=0.0)
 parser.add_argument("-num","--numbers", help="allow numbers in sentences", action="store_true")
 parser.add_argument("-hist", help="save histogram of sentence lengths", action="store_true")
+parser.add_argument("-afr", help="cleaning afrikaans corpus", action="store_true")
 args = parser.parse_args()
 
 startTime = time.time()
@@ -39,6 +40,10 @@ textFile = open(args.input)
 	
 for line in textFile:
 	line = line.lower().replace('\n', '')
+	if args.afr:
+		if re.match("^[^<>]+$",line) is None:
+			continue
+		line = re.sub(ur"^[a-mo-z]\s",'',line)
 	line = re.sub(ur"[^\w\d'\s]+",'',line)
 	sentence = line.split()
 	# we also need the vocabulary
@@ -70,6 +75,10 @@ textFile = open(args.input)
 cleanSentences = []
 for line in textFile:
 	line = line.lower().replace('\n', '')
+	if args.afr:
+		if re.match("^[^<>]+$",line) is None:
+			continue
+		line = re.sub(ur"^[a-mo-z]\s",'',line)
 	line = re.sub(ur"[^\w\d'\s]+",'',line)
 	sentence = line.split()
 	if args.hist:
