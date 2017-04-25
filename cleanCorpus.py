@@ -27,8 +27,10 @@ def onlyKnownWords(inputString):
 # Method to remove a random word from
 # a sentence and replace it with the
 # missing word symbol: /MISSING_WORD
-def removeWord(sentence):
-    sentence[random.randint(1,len(sentence)-2)] = "/MISSING_WORD"
+def removeWord(sentence, FH):
+    index = random.randint(1,len(sentence)-2)
+    FH.write(sentence[index]+'\n')
+    sentence[index] = "/MISSING_WORD"
     return ' '.join(sentence)
 
 parser = argparse.ArgumentParser()
@@ -89,6 +91,9 @@ tr_tar = open("clean_training_target.txt", 'w')
 tr_src = open("clean_training_source.txt", 'w')
 te_tar = open("clean_testing_target.txt", 'w')
 te_src = open("clean_testing_source.txt", 'w')
+
+tr_gt = open("training_ground_truth.txt", "w")
+te_gt = open("testing_ground_truth.txt", "w")
 count = 0
 rejected = 0
 if args.hist:
@@ -112,16 +117,18 @@ for line in textFile:
     if (onlyKnownWords(sentence)) and not hasNumbers(sentence):
         if( (args.split*count) % 100 == 0):
             te_tar.write(' '.join(sentence)+"\n")
-            te_src.write(removeWord(sentence)+"\n")
+            te_src.write(removeWord(sentence, te_gt)+"\n")
         else:
             tr_tar.write(' '.join(sentence)+"\n")
-            tr_src.write(removeWord(sentence)+"\n")
+            tr_src.write(removeWord(sentence, tr_gt)+"\n")
         count += 1
         if args.hist:
             lengthHist[len(sentence)] = lengthHist[len(sentence)] + 1
     else:
         rejected += 1
 textFile.close()
+tr_gt.close()
+te_gt.close()
 
 if args.hist:
     fid = open('histogram.dat', 'w')
