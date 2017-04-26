@@ -12,6 +12,7 @@ parser.add_argument("--embedding_dim", help="Dimension of the word embedding.", 
 parser.add_argument("--train", help="Train the model given the specified INPUT file and write to disk.", action="store_true")
 parser.add_argument("--encode", help="Load a trained model from disk and encode the given sentences.", action="store_true")
 parser.add_argument("--filename", help="Filename to use for output encodings", default='output')
+parser.add_argument("--weights", help="Ouput a weights matrix to accompany the encoding.", action='store_true', default=False)
 args = parser.parse_args()
 
 embedding_size = args.embedding
@@ -76,6 +77,10 @@ def main():
         # Embed the text corpus
         fname = '{}.npy'.format(args.filename)
         output = np.memmap(fname, dtype=np.float32, shape=(len(sentences), padding_size, NCS + embedding_size), mode='w+')
+        if(args.weights):
+            wname = '{}_weights.npy'.format(args.filename)
+            weights = np.memmap(wname, dtype=np.float32, shape=(len(sentences), padding_size), mode='w+')
+            
         maxIndex = []
         i = 0
         for s in sentences:
@@ -83,18 +88,30 @@ def main():
             for w in s:
                 if(w in model.wv):
                     output[i][j] = np.concatenate((vocab_word, model.wv[w])) # word vector of word j in sentence i
+                    if(args.weights):
+                        weights[i][j] = np.float32(1.0)
                 elif(w == "/MISSING_WORD"):
                     output[i][j] = missing_word
+                    if(args.weights):
+                        weights[i][j] = np.float32(padding_size)
                 else:
                     output[i][j] = unknown_word
+                    if(args.weights):
+                        weights[i][j] = np.float32(1.0)
                 j += 1
             maxIndex.append(j-1)
             for k in xrange(padding_size - len(s)):
                 output[i][j+k] = padding_word
+                if(args.weights):
+                    weights[i][j+k] = np.float32(1.0/padding_size)
             if((i+1) % 1000 == 0):
                 output.flush()
+                if(args.weights):
+                    weights.flush()
             i += 1
         del output
+        if(args.weights):
+            del weights
         
         print("\tEmbedded {} sentences and saved to {}".format(len(sentences), fname))
         print("\tArray shape: ({}, {}, {})".format(len(sentences), padding_size, NCS+embedding_size))
