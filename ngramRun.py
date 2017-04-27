@@ -58,7 +58,6 @@ print ("\tLoading model data complete\t%f seconds\n\n\tStarting analysis..." % (
 startTime = time.time()
 
 textFile = open(args.ts)
-fid = open(str(N)+'-gram_answer.txt', 'w')
 	
 for line in textFile:
 	line = line.replace('\n', '')
@@ -79,9 +78,10 @@ for line in textFile:
 		if prob > maxProb:
 			maxProb = prob
 			chosenWord = word
+	fid = open(str(N)+'-gram_answer.txt', 'a')
 	fid.write(chosenWord+'\n')
+	fid.close()
 textFile.close()
-fid.close()
 
 endTime = time.time()
 print ("\tAnalysis complete\t\t%f seconds\n\n" % (endTime - startTime))
