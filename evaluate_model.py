@@ -2,8 +2,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
 import wvModel
+import numpy as np
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("labels", help="Known missing words")
+parser.add_argument("predictions", help="Predicted missing words.")
+parser.add_argument("--embedding_dim", type=int, default=100)
+args = parser.parse_args()
 
 def main(model, pred_file, target_file):
     cosine_dist_sum = 0
@@ -22,12 +29,10 @@ def main(model, pred_file, target_file):
         target_v = model.wordLookup(target[i])
         cosine_dist_sum += model.distance(pred_v, target_v)
         
-    print ("Average cosine distance is:" + str(cosine_dist_sum/len(pred)))
+    print ("Average cosine distance is:" + str(round(cosine_dist_sum/len(pred), 4)))
 
 if __name__ == '__main__':
-    pred_file = sys.argv[1]
-    target_file = sys.argv[2]
     #load the model
-    model = wvModel.Model()
-    main(model, pred_file, target_file)    
+    model = wvModel.Model(embedding_size=args.embedding_dim)
+    main(model, args.labels, args.predictions)    
 
